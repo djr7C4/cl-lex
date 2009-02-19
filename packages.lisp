@@ -13,11 +13,6 @@
 ;;;; You should have received a copy of the GNU General Public License
 ;;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;;;
-;;;; Also add information on how to contact you by electronic and paper mail.
-;;;;
-;;;; If the program does terminal interaction, make it output a short
-;;;; notice like this when it starts in an interactive mode:
-;;;;
 ;;;; packages.lisp Copyright (C) 2009 David J. Rosenbaum
 ;;;; This program comes with ABSOLUTELY NO WARRANTY; for details see COPYING
 ;;;; This is free software, and you are welcome to redistribute it
