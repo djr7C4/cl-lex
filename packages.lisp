@@ -1,5 +1,5 @@
 ;;;; Defines cl-lex packages.
-;;;; Copyright (C) 2009 David J. Rosenbaum
+;;;; Copyright (C) 2009 David J. Rosenbaum, email: davidjrosenbaum2@gmail.com
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
