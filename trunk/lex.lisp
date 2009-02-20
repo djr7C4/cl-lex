@@ -3,7 +3,7 @@
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
-;;;; the Free Software Foundation, under version 3 of the License
+;;;; the Free Software Foundation, under version 3 of the License.
 ;;;;
 ;;;; This program is distributed in the hope that it will be useful,
 ;;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,9 +14,9 @@
 ;;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;;;
 ;;;; lex.lisp Copyright (C) 2009 David J. Rosenbaum
-;;;; This program comes with ABSOLUTELY NO WARRANTY; for details see COPYING
+;;;; This program comes with ABSOLUTELY NO WARRANTY; for details see COPYING.
 ;;;; This is free software, and you are welcome to redistribute it
-;;;; under certain conditions; for details see COPYING
+;;;; under certain conditions; for details see COPYING.
 
 (in-package :cl-lex)
 
@@ -35,8 +35,8 @@ regular expression is ignored.  If pattern is a list of two elements then when t
 sub-strings that match each register in the regular expression are bound to the symbols that represent the registers.  Any
 text that matches named registers is bound to a variable with the same name as the register name.  If the same name is used
 more than one register then subsequent have the appropriate index appended to their names.  If a register is not named,
-then text that matches it is bound to %i where i is the index of the register.  The entire matching sub-string is bound to
-%0.  If no text matches a register then its variable is bound to nil.  All symbols are interned in the current package when
+then text that matches it is bound to $i where i is the index of the register.  The entire matching sub-string is bound to
+$@.  If no text matches a register then its variable is bound to nil.  All symbols are interned in the current package when
 the macro is expanded.  Patterns are applied in the order they are provided and multiple patterns cannot be applied to the
 same piece of text.  Any text that is not matched to a pattern is skipped.  The behavior of the regular expressions can be
 modified by setting the appropriate variables in the cl-ppcre regex library."
@@ -99,7 +99,7 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 								   register-name))
 							     register-names)
 						       (error "invalid named register in ~a" regex)))
-						 (let ((register-name (format nil "%~d" (1+ registers))))
+						 (let ((register-name (format nil "$~d" (1+ registers))))
 						   (setf (gethash register-name used-register-names) t)
 						   (push register-name register-names)))
 					     (1+ registers))
@@ -149,8 +149,8 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 							 (global-registers (loop
 									      for j from (1+ register-start)
 									      to total-registers collect j))
-							 (%0 (intern "%0")))
-						    `(,register-start (let ((,%0 (subseq ,string
+							 ($@ (intern "$@")))
+						    `(,register-start (let ((,$@ (subseq ,string
 											 ,match-start
 											 ,match-end))
 									    ,@(mapcar (lambda (local-register-name i)
@@ -165,7 +165,7 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 												       ,i)))))
 										      local-register-names
 										      global-registers))
-									(declare (ignorable ,%0 ,@local-register-names))
+									(declare (ignorable ,$@ ,@local-register-names))
 									,form))))
 						registers
 						(concatenate 'list (cdr registers) (list nil))
