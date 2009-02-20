@@ -13,7 +13,7 @@
 ;;;; You should have received a copy of the GNU General Public License
 ;;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;;;
-;;;; lex.lisp Copyright (C) 2009 David J. Rosenbaum
+;;;; Copyright (C) 2009 David J. Rosenbaum
 ;;;; This program comes with ABSOLUTELY NO WARRANTY; for details see COPYING.
 ;;;; This is free software, and you are welcome to redistribute it
 ;;;; under certain conditions; for details see COPYING.
