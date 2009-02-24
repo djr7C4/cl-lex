@@ -1,4 +1,4 @@
-;;;; Loads and uses all cl-lex packages in the current package.
+;;;; Loads and uses all cl-lex packages in :cl-user.
 ;;;; Copyright (C) 2009 David J. Rosenbaum, email: davidjrosenbaum2@gmail.com
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
