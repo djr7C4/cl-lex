@@ -1,4 +1,4 @@
-;;;; Loads all files needed to run cl-lex code for debian systems.
+;;;; Loads and uses all cl-lex packages in the current package.
 ;;;; Copyright (C) 2009 David J. Rosenbaum, email: davidjrosenbaum2@gmail.com
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
@@ -20,22 +20,5 @@
 
 (in-package :cl-user)
 
-(let ((cl-lex-directory (make-pathname :name nil :type nil :defaults *load-truename*))
-      (cl-ppcre-directory (make-pathname :directory "/usr/share/common-lisp/source/cl-ppcre/")))
-  (with-compilation-unit ()
-    (loop for (directory . files) in `((,cl-ppcre-directory . ("packages"
-							       "specials"
-							       "util"
-							       "errors"
-							       "lexer"
-							       "parser"
-							       "regex-class"
-							       "convert"
-							       "optimize"
-							       "closures"
-							       "repetition-closures"
-							       "scanner"
-							       "api"))
-				       (,cl-lex-directory . ("packages" "lex"))) do
-	 (dolist (file files)
-	   (load (make-pathname :name file :type "lisp" :defaults directory))))))
+(load (make-pathname :name "load" :type "lisp" :defaults *load-truename*))
+(use-package :cl-lex)
