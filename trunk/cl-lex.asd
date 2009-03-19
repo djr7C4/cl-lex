@@ -1,4 +1,4 @@
-;;;; Loads all files needed to run cl-lex code.
+;;;; ASDF System definition for cl-lex.
 ;;;; Copyright (C) 2009 David J. Rosenbaum, email: davidjrosenbaum2@gmail.com
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
@@ -18,13 +18,9 @@
 ;;;; This is free software, and you are welcome to redistribute it
 ;;;; under certain conditions; for details see COPYING.
 
-(in-package :cl-user)
-
-(let ((cl-lex-directory (make-pathname :name nil :type nil :defaults *load-truename*)))
-  (with-compilation-unit ()
-    (require :asdf)
-    (asdf:operate 'asdf:load-op :cl-ppcre)
-    (dolist (file '("packages" "lex"))
-      (load (make-pathname :name file :type "lisp" :defaults cl-lex-directory)))))
-
-(provide :cl-lex)
+(asdf:defsystem :cl-lex
+  :version "1.0.0"
+  :serial t
+  :components ((:file "packages")
+	       (:file "lex"))
+  :depends-on ("cl-ppcre"))
