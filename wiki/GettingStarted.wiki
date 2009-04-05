@@ -2,7 +2,7 @@
 
 = Supported Platforms =
 
-cl-lex is written in standard Common Lisp and should work on any system that has [http://www.cliki.net/asdf cl-asdf] and [http://weitz.de/cl-ppcre/ cl-ppcre regex library] installed.
+cl-lex is written in standard Common Lisp and should work on any system that has [http://www.cliki.net/asdf cl-asdf] and [http://weitz.de/cl-ppcre/ cl-ppcre] installed.
 
 = Prerequisites =
 
