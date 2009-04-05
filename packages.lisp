@@ -22,5 +22,5 @@
 
 (defpackage :cl-lex
   (:use :cl)
-  (:export :define-lexer
+  (:export :define-string-lexer
 	   :stream-lexer))
