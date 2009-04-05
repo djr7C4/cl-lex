@@ -25,7 +25,7 @@
   `(let (,@(loop for symbol in symbols collect `(,symbol (gensym))))
      ,@body))
 
-(defmacro define-lexer (name &body patterns)
+(defmacro define-string-lexer (name &body patterns)
   "Defines a function that takes a string and keyword arguments for the start and end of the string and returns a closure
 that takes no arguments will return the next token each time it is called.  When the input string is exhausted or no more
 matches are found the closure will return nil.  Each pattern must be a regular expression or a list of one regular
@@ -171,3 +171,43 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 						(concatenate 'list (cdr registers) (list nil))
 						forms)))
 				  (return)))))))))))))
+
+(defun stream-lexer (read-source-line string-lexer opening-delimiter-p closing-delimiter-p &key (stream *standard-input*))
+  "Returns a closure that takes no arguments and will return each token from stream when called.  read-source-line is a
+function that takes an input stream and returns a line of the source.  When EOF is encountered, read-source-line should
+return t.  string-lexer is a function that returns a lexer that behaves as if it was returned by a function defined using
+define-string-lexer. opening-delimiter-p is a function that takes a character and returns true if it is an opening
+delimiter and false otherwise.  closing-delimiter-p is a function that takes a character When there no more tokens are
+left, nil is returned.  nil is also returned when a newline is encountered and there are no open delimiters.  If the
+closure is called again after EOF has been encountered a condition of type end-of-file is signalled."
+  (let (eof line-lexer (open-delimiters 0) (update t))
+    (labels ((next-token ()
+	       (multiple-value-bind (token value)
+		   (funcall line-lexer)
+		 (cond
+		   ((funcall opening-delimiter-p token) (incf open-delimiters))
+		   ((funcall closing-delimiter-p token) (decf open-delimiters)))
+		 (values token value)))
+	     (update-line-lexer ()
+	       (let ((line (funcall read-source-line stream)))
+		 (if (null line)
+		     (setf eof t))
+		 (setf line-lexer (funcall string-lexer line)))))
+      (lambda ()
+	(when update
+	  (update-line-lexer)
+	  (setf update nil))
+	(multiple-value-bind (token value)
+	    (next-token)
+	  (if token
+	      (values token value)
+	      (if eof
+		  (error 'end-of-file :stream stream)
+		  (if (> open-delimiters 0)
+		      (progn
+			(update-line-lexer)
+			(next-token))
+		      (progn
+			(setf update t
+			      open-delimiters 0)
+			nil)))))))))
