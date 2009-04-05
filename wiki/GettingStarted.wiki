@@ -1,0 +1,13 @@
+#summary This page describes how to setup cl-lex.
+
+= Supported Platforms =
+
+cl-lex is written in standard Common Lisp and should work on any system that has [http://www.pps.jussieu.fr/~jch/software/cl-yacc/ cl-asdf] and [http://www.cliki.net/asdf cl-asdf] installed.
+
+= Prerequisites =
+
+Before installing cl-lex, cl-asdf and cl-ppcre must be installed.  On debian this can be done by installing cl-asdf and cl-ppcre.
+
+= Using cl-lex =
+
+The use of cl-lex is described in the lex.lisp file.
