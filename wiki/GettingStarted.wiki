@@ -6,7 +6,7 @@ cl-lex is written in standard Common Lisp and should work on any system that has
 
 = Prerequisites =
 
-Before installing cl-lex, cl-asdf and cl-ppcre must be installed.  On debian this can be done by installing cl-asdf and cl-ppcre.
+Before installing cl-lex, cl-asdf and cl-ppcre must be installed.  On debian this can be done by installing the cl-asdf and cl-ppcre packages.
 
 = Using cl-lex =
 
