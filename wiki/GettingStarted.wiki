@@ -10,7 +10,7 @@ Before installing cl-lex, cl-asdf and cl-ppcre must be installed.  On debian thi
 
 = Installing cl-lex =
 
-cl-lex can be installed on debian systems using the debian package provided on the downloads page.  Alternatively, the provided asdf-isntallable .tar.gz file on the downloads page can be installed using [http://common-lisp.net/project/asdf-install/ asdf-install].
+cl-lex can be installed on debian systems using the debian package provided on the downloads page.  Alternatively, the provided asdf-installable .tar.gz file on the downloads page can be installed using [http://common-lisp.net/project/asdf-install/ asdf-install].
 
 = Using cl-lex =
 
