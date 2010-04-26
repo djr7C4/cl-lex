@@ -19,7 +19,7 @@
 ;;;; under certain conditions; for details see COPYING.
 
 (asdf:defsystem :cl-lex
-  :version "1.1.1"
+  :version "1.1.2"
   :serial t
   :components ((:file "packages")
 	       (:file "lex"))
