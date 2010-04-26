@@ -118,9 +118,7 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 	  (if (> (length combined-regex) 0)
 	      (setf combined-regex (subseq combined-regex 0 (1- (length combined-regex)))))
 	  (with-gensyms (scanner string start end match-start match-end register-starts register-ends)
-	    `(progn
-	       (defvar ,scanner (let ((cl-ppcre:*allow-named-registers* t))
-				  (cl-ppcre:create-scanner ,combined-regex)))
+	    `(let* ((cl-ppcre:*allow-named-registers* t) (,scanner (cl-ppcre:create-scanner ,combined-regex)))
 	       (defun ,name (,string &key (,start 0) (,end (length ,string)))
 		 (declare (ignorable ,start))
 		 (if (null ,end)
