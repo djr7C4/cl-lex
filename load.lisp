@@ -1,5 +1,5 @@
 ;;;; Loads all files needed to run cl-lex code.
-;;;; Copyright (C) 2009 David J. Rosenbaum, email: davidjrosenbaum@comcast.net
+;;;; Copyright (C) 2009 David J. Rosenbaum, email: djr7C4@gmail.com
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by

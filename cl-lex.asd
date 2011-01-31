@@ -1,5 +1,5 @@
 ;;;; ASDF System definition for cl-lex.
-;;;; Copyright (C) 2009 David J. Rosenbaum, email: davidjrosenbaum@comcast.net
+;;;; Copyright (C) 2009 David J. Rosenbaum, email: djr7C4@gmail.com
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 ;;;; under certain conditions; for details see COPYING.
 
 (asdf:defsystem :cl-lex
-  :version "1.1.2"
+  :version "1.1.3"
   :serial t
   :components ((:file "packages")
 	       (:file "lex"))

@@ -1,5 +1,5 @@
 ;;;; Defines the lexer generator.
-;;;; Copyright (C) 2009 David J. Rosenbaum, email: davidjrosenbaum@comcast.net
+;;;; Copyright (C) 2009 David J. Rosenbaum, email: djr7C4@gmail.com
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -31,13 +31,14 @@ that takes no arguments will return the next token each time it is called.  When
 matches are found the closure will return nil.  Each pattern must be a regular expression or a list of one regular
 expression or a list containing a regular expression as the first element and the rest of the elements of the list forming
 an implicit progn.  If a pattern is a regular expression or a list of one element, then text in the string that matches the
-regular expression is ignored.  If pattern is a list of two elements then when the regular expression matches text the
+regular expression is ignored.  If a pattern is a list of two elements then when the regular expression matches text the
 sub-strings that match each register in the regular expression are bound to the symbols that represent the registers.  Any
 text that matches named registers is bound to a variable with the same name as the register name.  If the same name is used
 more than one register then subsequent have the appropriate index appended to their names.  If a register is not named,
 then text that matches it is bound to $i where i is the index of the register.  The entire matching sub-string is bound to
 $@.  If no text matches a register then its variable is bound to nil.  All symbols are interned in the current package when
-the macro is expanded.  Patterns are applied in the order they are provided and multiple patterns cannot be applied to the
+the macro is expanded.  The start and end variables passed to the function are accessible from inside the implicit progn's
+from the patterns.  Patterns are applied in the order they are provided and multiple patterns cannot be applied to the
 same piece of text.  Any text that is not matched to a pattern is skipped.  The behavior of the regular expressions can be
 modified by setting the appropriate variables in the cl-ppcre regex library."
   (let (regexes forms (registers (list 0)) register-names (used-register-names (make-hash-table :test #'equal)))
@@ -117,24 +118,24 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 									 regexes)))))
 	  (if (> (length combined-regex) 0)
 	      (setf combined-regex (subseq combined-regex 0 (1- (length combined-regex)))))
-	  (with-gensyms (scanner string start end match-start match-end register-starts register-ends)
+	  (with-gensyms (scanner string match-start match-end register-starts register-ends)
 	    `(let* ((cl-ppcre:*allow-named-registers* t) (,scanner (cl-ppcre:create-scanner ,combined-regex)))
-	       (defun ,name (,string &key (,start 0) (,end (length ,string)))
-		 (declare (ignorable ,start))
-		 (if (null ,end)
-		     (setf ,end (length ,string)))
+	       (defun ,name (,string &key (start 0) (end (length ,string)))
+		 (declare (ignorable start end))
+		 ;(if (null end)
+		 ;    (setf end (length ,string)))
 		 (lambda ()
 		   ,(if registers
 			`(loop
 			    (multiple-value-bind (,match-start ,match-end ,register-starts ,register-ends)
-				(cl-ppcre:scan ,scanner ,string :start ,start :end ,end)
+				(cl-ppcre:scan ,scanner ,string :start start :end end)
 			      (declare (ignorable ,register-ends))
 			      (if ,match-start
 				  (progn
 				    (if (eql ,match-start ,match-end)
 					(error "matched the empty string at position ~d, this will cause an infinite loop"
 					       ,match-start))
-				    (setf ,start ,match-end)
+				    (setf start ,match-end)
 				    (ecase (position-if #'identity ,register-starts)
 				      ,@(mapcar (lambda (register-start register-end form)
 						  (let* ((local-register-names (mapcar (lambda (register-name)
