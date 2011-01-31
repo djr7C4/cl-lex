@@ -122,8 +122,8 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 	    `(let* ((cl-ppcre:*allow-named-registers* t) (,scanner (cl-ppcre:create-scanner ,combined-regex)))
 	       (defun ,name (,string &key (start 0) (end (length ,string)))
 		 (declare (ignorable start end))
-		 ;(if (null end)
-		 ;    (setf end (length ,string)))
+		 (if (null end)
+		     (setf end (length ,string)))
 		 (lambda ()
 		   ,(if registers
 			`(loop
