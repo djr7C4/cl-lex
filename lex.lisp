@@ -27,14 +27,14 @@
 
 (defmacro define-string-lexer (name &body patterns)
   "Defines a function that takes a string and keyword arguments for the start and end of the string and returns a closure
-that takes no arguments will return the next token each time it is called.  When the input string is exhausted or no more
+that takes no arguments and will return the next token each time it is called.  When the input string is exhausted or no more
 matches are found the closure will return nil.  Each pattern must be a regular expression or a list of one regular
 expression or a list containing a regular expression as the first element and the rest of the elements of the list forming
 an implicit progn.  If a pattern is a regular expression or a list of one element, then text in the string that matches the
 regular expression is ignored.  If a pattern is a list of two elements then when the regular expression matches text the
 sub-strings that match each register in the regular expression are bound to the symbols that represent the registers.  Any
 text that matches named registers is bound to a variable with the same name as the register name.  If the same name is used
-more than one register then subsequent have the appropriate index appended to their names.  If a register is not named,
+for more than one register then subsequent have the appropriate index appended to their names.  If a register is not named,
 then text that matches it is bound to $i where i is the index of the register.  The entire matching sub-string is bound to
 $@.  If no text matches a register then its variable is bound to nil.  All symbols are interned in the current package when
 the macro is expanded.  The start and end variables passed to the function are accessible from inside the implicit progn's
@@ -176,7 +176,7 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 function that takes an input stream and returns a line of the source.  When EOF is encountered, read-source-line should
 return t.  string-lexer is a function that returns a lexer that behaves as if it was returned by a function defined using
 define-string-lexer. opening-delimiter-p is a function that takes a character and returns true if it is an opening
-delimiter and false otherwise.  closing-delimiter-p is a function that takes a character When there no more tokens are
+delimiter and false otherwise.  closing-delimiter-p is a function that takes a character. When there no more tokens are
 left, nil is returned.  nil is also returned when a newline is encountered and there are no open delimiters.  If the
 closure is called again after EOF has been encountered a condition of type end-of-file is signalled."
   (let (eof line-lexer (open-delimiters 0) (update t))
