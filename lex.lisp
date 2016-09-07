@@ -118,24 +118,24 @@ modified by setting the appropriate variables in the cl-ppcre regex library."
 									 regexes)))))
 	  (if (> (length combined-regex) 0)
 	      (setf combined-regex (subseq combined-regex 0 (1- (length combined-regex)))))
-	  (with-gensyms (scanner string match-start match-end register-starts register-ends)
+	  (with-gensyms (scanner string start end match-start match-end register-starts register-ends)
 	    `(let* ((cl-ppcre:*allow-named-registers* t) (,scanner (cl-ppcre:create-scanner ,combined-regex)))
-	       (defun ,name (,string &key (start 0) (end (length ,string)))
-		 (declare (ignorable start end))
-		 (if (null end)
-		     (setf end (length ,string)))
+	       (defun ,name (,string &key ((start ,start) 0) ((end ,end) (length ,string)))
+                 (declare (ignorable ,start ,end))
+		 (if (null ,end)
+		     (setf ,end (length ,string)))
 		 (lambda ()
 		   ,(if registers
 			`(loop
 			    (multiple-value-bind (,match-start ,match-end ,register-starts ,register-ends)
-				(cl-ppcre:scan ,scanner ,string :start start :end end)
+				(cl-ppcre:scan ,scanner ,string :start ,start :end ,end)
 			      (declare (ignorable ,register-ends))
 			      (if ,match-start
 				  (progn
 				    (if (eql ,match-start ,match-end)
 					(error "matched the empty string at position ~d, this will cause an infinite loop"
 					       ,match-start))
-				    (setf start ,match-end)
+				    (setf ,start ,match-end)
 				    (ecase (position-if #'identity ,register-starts)
 				      ,@(mapcar (lambda (register-start register-end form)
 						  (let* ((local-register-names (mapcar (lambda (register-name)
