@@ -20,6 +20,9 @@
 
 (asdf:defsystem :cl-lex
   :version "1.1.3"
+  :author "David J. Rosenbaum <djr7C4@gmail.com>"
+  :license "GPL3"
+  :description "Common Lisp macros for generating lexical analyzers"
   :serial t
   :components ((:file "packages")
 	       (:file "lex"))
