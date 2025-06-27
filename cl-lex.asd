@@ -25,5 +25,5 @@
   :description "Common Lisp macros for generating lexical analyzers"
   :serial t
   :components ((:file "packages")
-	       (:file "lex"))
+               (:file "lex"))
   :depends-on ("cl-ppcre"))

@@ -43,133 +43,133 @@ same piece of text.  Any text that is not matched to a pattern is skipped.  The 
 modified by setting the appropriate variables in the cl-ppcre regex library."
   (let (regexes forms (registers (list 0)) register-names (used-register-names (make-hash-table :test #'equal)))
       (dolist (pattern patterns)
-	(multiple-value-bind (regex form)
-	    (if (consp pattern)
-		(values (car pattern) `(progn ,@(cdr pattern)))
-		(values pattern nil))
-	  (push regex regexes)
-	  (push form forms)
-	  (push (+ (car registers)
-		   (progn
-		     (push nil register-names)
-		     (do ((i 0 (1+ i)) (open-backslash nil (and (null open-backslash) (char= (char regex i) #\\)))
-			  (open-character-set nil (case (char regex i)
-						    (#\[ (or open-character-set (not open-backslash)))
-						    (#\] (and open-backslash open-character-set))
-						    (t open-character-set)))
-			  (open-parentheses nil (and (null open-backslash)
-						     (null open-character-set)
-						     (char= (char regex i) #\()))
-			  (registers 0 (if open-parentheses
-					   (progn
-					     (if (char= (char regex i) #\?)
-						 (let ((register-name-end (position #\> regex :start i)))
-						   (if (and register-name-end
-							    (< (+ i 3) (length regex))
-							    (char= (char regex (1+ i)) #\<))
-						       (push (do* ((j 1 (1+ j))
-								   (register-base-name
-								    (string-upcase
-								     (subseq regex
-									     (+ i 2)
-									     (1+ (position-if (lambda (char)
-												(not (member char
-													     '(#\0
-													       #\1
-													       #\2
-													       #\3
-													       #\4
-													       #\5
-													       #\6
-													       #\7
-													       #\8
-													       #\9))))
-											      regex
-											      :from-end t
-											      :end register-name-end)))))
-								   (register-name (string-upcase
-										   (subseq regex
-											   (+ i 2)
-											   register-name-end))
-										  (format nil
-											  "~a~d"
-											  register-base-name
-											  j)))
-								  ((not (gethash register-name used-register-names))
-								   (setf (gethash register-name used-register-names) t)
-								   register-name))
-							     register-names)
-						       (error "invalid named register in ~a" regex)))
-						 (let ((register-name (format nil "$~d" (1+ registers))))
-						   (setf (gethash register-name used-register-names) t)
-						   (push register-name register-names)))
-					     (1+ registers))
-					   registers)))
-			 ((= i (length regex)) registers)))
-		   1)
-		registers)))
+        (multiple-value-bind (regex form)
+            (if (consp pattern)
+                (values (car pattern) `(progn ,@(cdr pattern)))
+                (values pattern nil))
+          (push regex regexes)
+          (push form forms)
+          (push (+ (car registers)
+                   (progn
+                     (push nil register-names)
+                     (do ((i 0 (1+ i)) (open-backslash nil (and (null open-backslash) (char= (char regex i) #\\)))
+                          (open-character-set nil (case (char regex i)
+                                                    (#\[ (or open-character-set (not open-backslash)))
+                                                    (#\] (and open-backslash open-character-set))
+                                                    (t open-character-set)))
+                          (open-parentheses nil (and (null open-backslash)
+                                                     (null open-character-set)
+                                                     (char= (char regex i) #\()))
+                          (registers 0 (if open-parentheses
+                                           (progn
+                                             (if (char= (char regex i) #\?)
+                                                 (let ((register-name-end (position #\> regex :start i)))
+                                                   (if (and register-name-end
+                                                            (< (+ i 3) (length regex))
+                                                            (char= (char regex (1+ i)) #\<))
+                                                       (push (do* ((j 1 (1+ j))
+                                                                   (register-base-name
+                                                                    (string-upcase
+                                                                     (subseq regex
+                                                                             (+ i 2)
+                                                                             (1+ (position-if (lambda (char)
+                                                                                                (not (member char
+                                                                                                             '(#\0
+                                                                                                               #\1
+                                                                                                               #\2
+                                                                                                               #\3
+                                                                                                               #\4
+                                                                                                               #\5
+                                                                                                               #\6
+                                                                                                               #\7
+                                                                                                               #\8
+                                                                                                               #\9))))
+                                                                                              regex
+                                                                                              :from-end t
+                                                                                              :end register-name-end)))))
+                                                                   (register-name (string-upcase
+                                                                                   (subseq regex
+                                                                                           (+ i 2)
+                                                                                           register-name-end))
+                                                                                  (format nil
+                                                                                          "~a~d"
+                                                                                          register-base-name
+                                                                                          j)))
+                                                                  ((not (gethash register-name used-register-names))
+                                                                   (setf (gethash register-name used-register-names) t)
+                                                                   register-name))
+                                                             register-names)
+                                                       (error "invalid named register in ~a" regex)))
+                                                 (let ((register-name (format nil "$~d" (1+ registers))))
+                                                   (setf (gethash register-name used-register-names) t)
+                                                   (push register-name register-names)))
+                                             (1+ registers))
+                                           registers)))
+                         ((= i (length regex)) registers)))
+                   1)
+                registers)))
       (let ((total-registers (car registers)))
-	(setf regexes (nreverse regexes)
-	      forms (nreverse forms)
-	      registers (nreverse (cdr registers))
-	      register-names (nreverse register-names))
-	(let ((combined-regex (apply #'concatenate (cons 'string (mapcar (lambda (regex)
-									   (concatenate 'string "(" regex ")|"))
-									 regexes)))))
-	  (if (> (length combined-regex) 0)
-	      (setf combined-regex (subseq combined-regex 0 (1- (length combined-regex)))))
-	  (with-gensyms (scanner string start end match-start match-end register-starts register-ends)
-	    `(let* ((cl-ppcre:*allow-named-registers* t) (,scanner (cl-ppcre:create-scanner ,combined-regex)))
-	       (defun ,name (,string &key ((start ,start) 0) ((end ,end) (length ,string)))
+        (setf regexes (nreverse regexes)
+              forms (nreverse forms)
+              registers (nreverse (cdr registers))
+              register-names (nreverse register-names))
+        (let ((combined-regex (apply #'concatenate (cons 'string (mapcar (lambda (regex)
+                                                                           (concatenate 'string "(" regex ")|"))
+                                                                         regexes)))))
+          (if (> (length combined-regex) 0)
+              (setf combined-regex (subseq combined-regex 0 (1- (length combined-regex)))))
+          (with-gensyms (scanner string start end match-start match-end register-starts register-ends)
+            `(let* ((cl-ppcre:*allow-named-registers* t) (,scanner (cl-ppcre:create-scanner ,combined-regex)))
+               (defun ,name (,string &key ((start ,start) 0) ((end ,end) (length ,string)))
                  (declare (ignorable ,start ,end))
-		 (if (null ,end)
-		     (setf ,end (length ,string)))
-		 (lambda ()
-		   ,(if registers
-			`(loop
-			    (multiple-value-bind (,match-start ,match-end ,register-starts ,register-ends)
-				(cl-ppcre:scan ,scanner ,string :start ,start :end ,end)
-			      (declare (ignorable ,register-ends))
-			      (if ,match-start
-				  (progn
-				    (if (eql ,match-start ,match-end)
-					(error "matched the empty string at position ~d, this will cause an infinite loop"
-					       ,match-start))
-				    (setf ,start ,match-end)
-				    (ecase (position-if #'identity ,register-starts)
-				      ,@(mapcar (lambda (register-start register-end form)
-						  (let* ((local-register-names (mapcar (lambda (register-name)
-											 (intern register-name))
-										       (if (< (1+ register-start)
-											      total-registers)
-											   (subseq register-names
-												   (1+ register-start)
-												   register-end))))
-							 (global-registers (loop
-									      for j from (1+ register-start)
-									      to total-registers collect j))
-							 ($@ (intern "$@")))
-						    `(,register-start (let ((,$@ (subseq ,string
-											 ,match-start
-											 ,match-end))
-									    ,@(mapcar (lambda (local-register-name i)
-											`(,local-register-name
-											  (if (aref ,register-starts ,i)
-											      (subseq ,string
-												      (aref
-												       ,register-starts
-												       ,i)
-												      (aref
-												       ,register-ends
-												       ,i)))))
-										      local-register-names
-										      global-registers))
-									(declare (ignorable ,$@ ,@local-register-names))
-									,form))))
-						registers
-						(concatenate 'list (cdr registers) (list nil))
-						forms)))
-				  (return)))))))))))))
+                 (if (null ,end)
+                     (setf ,end (length ,string)))
+                 (lambda ()
+                   ,(if registers
+                        `(loop
+                            (multiple-value-bind (,match-start ,match-end ,register-starts ,register-ends)
+                                (cl-ppcre:scan ,scanner ,string :start ,start :end ,end)
+                              (declare (ignorable ,register-ends))
+                              (if ,match-start
+                                  (progn
+                                    (if (eql ,match-start ,match-end)
+                                        (error "matched the empty string at position ~d, this will cause an infinite loop"
+                                               ,match-start))
+                                    (setf ,start ,match-end)
+                                    (ecase (position-if #'identity ,register-starts)
+                                      ,@(mapcar (lambda (register-start register-end form)
+                                                  (let* ((local-register-names (mapcar (lambda (register-name)
+                                                                                         (intern register-name))
+                                                                                       (if (< (1+ register-start)
+                                                                                              total-registers)
+                                                                                           (subseq register-names
+                                                                                                   (1+ register-start)
+                                                                                                   register-end))))
+                                                         (global-registers (loop
+                                                                              for j from (1+ register-start)
+                                                                              to total-registers collect j))
+                                                         ($@ (intern "$@")))
+                                                    `(,register-start (let ((,$@ (subseq ,string
+                                                                                         ,match-start
+                                                                                         ,match-end))
+                                                                            ,@(mapcar (lambda (local-register-name i)
+                                                                                        `(,local-register-name
+                                                                                          (if (aref ,register-starts ,i)
+                                                                                              (subseq ,string
+                                                                                                      (aref
+                                                                                                       ,register-starts
+                                                                                                       ,i)
+                                                                                                      (aref
+                                                                                                       ,register-ends
+                                                                                                       ,i)))))
+                                                                                      local-register-names
+                                                                                      global-registers))
+                                                                        (declare (ignorable ,$@ ,@local-register-names))
+                                                                        ,form))))
+                                                registers
+                                                (concatenate 'list (cdr registers) (list nil))
+                                                forms)))
+                                  (return)))))))))))))
 
 (defun stream-lexer (read-source-line string-lexer opening-delimiter-p closing-delimiter-p &key (stream *standard-input*))
   "Returns a closure that takes no arguments and will return each token from stream when called.  read-source-line is a
@@ -181,32 +181,32 @@ left, nil is returned.  nil is also returned when a newline is encountered and t
 closure is called again after EOF has been encountered a condition of type end-of-file is signalled."
   (let (eof line-lexer (open-delimiters 0) (update t))
     (labels ((next-token ()
-	       (multiple-value-bind (token value)
-		   (funcall line-lexer)
-		 (cond
-		   ((funcall opening-delimiter-p token) (incf open-delimiters))
-		   ((funcall closing-delimiter-p token) (decf open-delimiters)))
-		 (values token value)))
-	     (update-line-lexer ()
-	       (let ((line (funcall read-source-line stream)))
-		 (if (null line)
-		     (setf eof t))
-		 (setf line-lexer (funcall string-lexer line)))))
+               (multiple-value-bind (token value)
+                   (funcall line-lexer)
+                 (cond
+                   ((funcall opening-delimiter-p token) (incf open-delimiters))
+                   ((funcall closing-delimiter-p token) (decf open-delimiters)))
+                 (values token value)))
+             (update-line-lexer ()
+               (let ((line (funcall read-source-line stream)))
+                 (if (null line)
+                     (setf eof t))
+                 (setf line-lexer (funcall string-lexer line)))))
       (lambda ()
-	(when update
-	  (update-line-lexer)
-	  (setf update nil))
-	(multiple-value-bind (token value)
-	    (next-token)
-	  (if token
-	      (values token value)
-	      (if eof
-		  (error 'end-of-file :stream stream)
-		  (if (> open-delimiters 0)
-		      (progn
-			(update-line-lexer)
-			(next-token))
-		      (progn
-			(setf update t
-			      open-delimiters 0)
-			nil)))))))))
+        (when update
+          (update-line-lexer)
+          (setf update nil))
+        (multiple-value-bind (token value)
+            (next-token)
+          (if token
+              (values token value)
+              (if eof
+                  (error 'end-of-file :stream stream)
+                  (if (> open-delimiters 0)
+                      (progn
+                        (update-line-lexer)
+                        (next-token))
+                      (progn
+                        (setf update t
+                              open-delimiters 0)
+                        nil)))))))))
